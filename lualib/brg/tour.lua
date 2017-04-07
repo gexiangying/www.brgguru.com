@@ -194,10 +194,11 @@ function get_contract_str(set,declarer,contract_num,contract_trump,contract_doub
 	return contract
 end
 
-function save_ximp(tour_no,round,sets,index)
+function save_ximp(tour_no,round,sets,index,players)
 	local db = {}
 	db.sets = sets
 	db.index = index
+	db.players = players
 	comma.save_io(db_dir .. tour_no .. "-" .. round .. "-ximp.db",db,"db")
 end
 function load_ximp(tour_no,round)
@@ -205,9 +206,10 @@ function load_ximp(tour_no,round)
 	M.db = {}
 	M.db.sets = {}
 	M.db.index = {}
+	M.db.players = {}
 	local func = loadfile(db_dir .. tour_no .. "-" .. round .. "-ximp.db","bt",M)
 	if func then func() end 
-	return M.db.sets,M.db.index
+	return M.db.sets,M.db.index,M.db.players
 end
 function save_db(tour_no,round,desk,db)
 	comma.save_io(db_dir .. tour_no .. "-" .. round .. "-" .. desk .. ".db",db,"db")
@@ -403,7 +405,6 @@ function txs_cal(data)
 		end
 	end
 end
-
 function tour_ximp(data)
 	local sets = luabridge.mk_sets(data)  -- {[6]={set,set,set},[7]={record,record}}
 	local index = mk_index(sets)    --{6,7,8....}
@@ -414,7 +415,56 @@ function tour_ximp(data)
 			luabridge.ximp_sets(rs)
 		end
 	end
-	return sets,index
+	local players = {}
+	for i,v in ipairs(data) do
+		players[v.N] = players[v.N] or {}
+		players[v.S] = players[v.S] or {}
+		players[v.E] = players[v.E] or {}
+		players[v.W] = players[v.W] or {}
+
+		players[v.N].boards = players[v.N].boards or 0
+		players[v.N].boards = players[v.N].boards + 1
+		players[v.N].ximp = players[v.N].ximp or 0.0
+		players[v.N].ximp = players[v.N].ximp + v.NS_ximp
+		players[v.N].mp = players[v.N].mp or 0.0
+		players[v.N].mp = players[v.N].mp + v.NS_mp
+
+		players[v.S].boards = players[v.S].boards or 0
+		players[v.S].boards = players[v.S].boards + 1
+		players[v.S].ximp = players[v.S].ximp or 0.0
+		players[v.S].ximp = players[v.S].ximp + v.NS_ximp
+		players[v.S].mp = players[v.S].mp or 0.0
+		players[v.S].mp = players[v.S].mp + v.NS_mp
+
+		players[v.E].boards = players[v.E].boards or 0
+		players[v.E].boards = players[v.E].boards + 1
+		players[v.E].ximp = players[v.E].ximp or 0.0
+		players[v.E].ximp = players[v.E].ximp + v.EW_ximp
+		players[v.E].mp = players[v.E].mp or 0.0
+		players[v.E].mp = players[v.E].mp + v.EW_mp
+
+		players[v.W].boards = players[v.W].boards or 0
+		players[v.W].boards = players[v.W].boards + 1
+		players[v.W].ximp = players[v.W].ximp or 0.0
+		players[v.W].ximp = players[v.W].ximp + v.EW_ximp
+		players[v.W].mp = players[v.W].mp or 0.0
+		players[v.W].mp = players[v.W].mp + v.EW_mp
+	end
+	local pls = {}
+	for k,v in pairs(players) do
+		local num = #pls+1
+		pls[num] = {}
+		pls[num].no = k
+		pls[num].boards = v.boards
+		pls[num].ximp = v.ximp
+		pls[num].mp = v.mp
+		pls[num].vp = luabridge.vp(v.boards,v.ximp)
+	end
+	local function cmp_vp(a,b)
+		return a.vp > b.vp
+	end
+	table.sort(pls,cmp_vp)
+	return sets,index,pls
 end
 
 function load_tour_desk_sets(tour_no,round,desk,sets)

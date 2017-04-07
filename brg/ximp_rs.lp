@@ -35,9 +35,32 @@
 			</div>		
 			<% if tour_no and round then %>
 			<%
-						local sets,index = tour.load_ximp(tour_no,round)
+						local sets,index,players = tour.load_ximp(tour_no,round)
 						local users = tour.load_user_list()
       			%> 
+				<div data-role="content">
+				<table width="100%" class="ui-responsive table-stripe" >
+				<thead>
+						<tr>
+							<th>姓名</th>
+							<th>ximp</th>
+							<th>mp</th>
+							<th>副数</th>
+							<th>VP</th>
+						</tr>
+				</thead>
+				<% for i,v in _G.ipairs(players) do %>
+				<tr>
+					<td><%=users[v.no] %></td>
+					<td><%=v.ximp %></td>
+					<td><%=v.mp %></td>
+					<td><%=v.boards %></td>
+					<td><%=v.vp %></td>
+				</tr>
+				<% end %>
+				</table>
+			</div>
+
 			<div data-role="content">
 				<table width="100%" class="ui-responsive table-stripe" >
 				<thead>
@@ -73,7 +96,7 @@
 				</table>
 			</div>
 		<% end %>
-			<%=tour.adminfooter %>
+			<%=tour.footer %>
 		</div>
 	</body>
 </html>	
