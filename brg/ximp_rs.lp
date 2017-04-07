@@ -30,6 +30,8 @@
 				local linkname = "ximp_rs.lp?tour_no=" .. url.escape(tour_no) .. "&round=" .. i%>
 				<li> <a href="<%=linkname %>">第<%=i %>轮</a></li>
 				<% end %>
+				<% local linkname = "pls.lp?tour_no=" .. url.escape(tour_no) %>
+				<li> <a href="<%=linkname %>">所有轮</a></li>
 				</ol>
 			<% end %>
 			</div>		

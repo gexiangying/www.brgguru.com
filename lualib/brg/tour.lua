@@ -194,12 +194,50 @@ function get_contract_str(set,declarer,contract_num,contract_trump,contract_doub
 	return contract
 end
 
+function get_tour_pls(tour_no)
+	local M = {}
+	M.db = {}
+	local func = loadfile(db_dir .. tour_no .. "-ximp.db","bt",M)
+	if func then func() end 
+  local players = {}	
+	for round,v in ipairs(M.db) do
+		for i,v1 in ipairs(v) do
+			local num = v1.no
+			players[num] = players[num] or {}
+			players[num].no = v1.no
+			players[num].vp = players[num].vp or 0.0
+			players[num].vp = players[num].vp + v1.vp
+			players[num].rs = players[num].rs or {}
+			players[num].rs[round] = v1.vp
+		end
+	end
+	local pls = {}
+	for k,v in pairs(players) do
+		local num = #pls+1
+		pls[num] = {}
+		pls[num].no = k
+		pls[num].vp = v.vp
+		pls[num].rs = v.rs
+	end
+	local function cmp_vp(a,b)
+		return a.vp > b.vp
+	end
+	table.sort(pls,cmp_vp)
+	return pls
+end
+
 function save_ximp(tour_no,round,sets,index,players)
 	local db = {}
 	db.sets = sets
 	db.index = index
 	db.players = players
 	comma.save_io(db_dir .. tour_no .. "-" .. round .. "-ximp.db",db,"db")
+	local M = {}
+	M.db = {}
+	local func = loadfile(db_dir .. tour_no .. "-ximp.db","bt",M)
+	if func then func() end 
+	M.db[tonumber(round)] = players
+	comma.save_io(db_dir .. tour_no .. "-ximp.db",M.db,"db")
 end
 function load_ximp(tour_no,round)
 	local M = {} 
