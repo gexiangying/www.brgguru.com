@@ -194,6 +194,21 @@ function get_contract_str(set,declarer,contract_num,contract_trump,contract_doub
 	return contract
 end
 
+function save_ximp(tour_no,round,sets,index)
+	local db = {}
+	db.sets = sets
+	db.index = index
+	comma.save_io(db_dir .. tour_no .. "-" .. round .. "-ximp.db",db,"db")
+end
+function load_ximp(tour_no,round)
+	local M = {} 
+	M.db = {}
+	M.db.sets = {}
+	M.db.index = {}
+	local func = loadfile(db_dir .. tour_no .. "-" .. round .. "-ximp.db",db,"db")
+	if func then func() end 
+	return M.db.sets,M.db.index
+end
 function save_db(tour_no,round,desk,db)
 	comma.save_io(db_dir .. tour_no .. "-" .. round .. "-" .. desk .. ".db",db,"db")
 end
@@ -402,7 +417,7 @@ function tour_ximp(data)
 	return sets,index
 end
 
-function load_tour_desk_sets(tour_no,round,desk)
+function load_tour_desk_sets(tour_no,round,desk,sets)
 	local round = tostring(round)
 	local desk = tostring(desk)
 	local db = load_db(tour_no,round,desk)

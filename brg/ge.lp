@@ -9,6 +9,7 @@
 		<div data-role="page">
 				<ol data-role="listview">
 					<li> <a href="adduser.lp">人员管理</a></li>
+					<li> <a href="ximp.lp">全场计算</a></li>
 				</ol>
 			<%=tour.adminfooter %>
 		</div>
