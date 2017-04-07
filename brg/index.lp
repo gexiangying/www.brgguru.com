@@ -10,6 +10,7 @@
 				<ol data-role="listview">
 					<li> <a href="brg.lp">录入器</a></li>
 					<li> <a href="score.lp">复式计算</a></li>
+					<li> <a href="ximp_rs.lp">全场结果</a></li>
 					<li> <a href="round.lp">通讯赛轮转表</a></li>
 					<li> <a href="txs_rs.lp">通讯赛结果</a></li>
 					<li> <a href="edit.lp">解锁比赛</a></li>

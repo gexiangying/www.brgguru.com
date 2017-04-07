@@ -205,7 +205,7 @@ function load_ximp(tour_no,round)
 	M.db = {}
 	M.db.sets = {}
 	M.db.index = {}
-	local func = loadfile(db_dir .. tour_no .. "-" .. round .. "-ximp.db",db,"db")
+	local func = loadfile(db_dir .. tour_no .. "-" .. round .. "-ximp.db","bt",M)
 	if func then func() end 
 	return M.db.sets,M.db.index
 end
