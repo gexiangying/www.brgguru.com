@@ -22,7 +22,7 @@
 							<th>名次</th>
 							<th>姓名</th>
 							<th>vp</th>
-							<th>每轮vp</th>
+							<th>总轮次</th>
 						</tr>
 				</thead>
 				<% for i,v in _G.ipairs(players) do %>
@@ -30,11 +30,11 @@
 					<td>第<%=i %>名</td>
 					<td><%=users[v.no] %></td>
 					<td><%=v.vp %></td>
-					<% local str="" 
-							for k,vp in _G.ipairs(v.rs) do
-												str = str .. vp .. "--" 
+					<% local total_rounds = 0
+							for k,vp in _G.pairs(v.rs) do
+											total_rounds = total_rounds + 1	
 							end %>
-          <td><%=str %></td>
+          <td><%=total_rounds %></td>
 				</tr>
 				<% end %>
 				</table>
