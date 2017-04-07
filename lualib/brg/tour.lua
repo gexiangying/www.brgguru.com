@@ -236,7 +236,11 @@ function save_ximp(tour_no,round,sets,index,players)
 	M.db = {}
 	local func = loadfile(db_dir .. tour_no .. "-ximp.db","bt",M)
 	if func then func() end 
-	M.db[tonumber(round)] = players
+	local r = tonumber(round) 
+	M.db[r] = M.db[r] or {}
+	for i,v in ipairs(players) do
+		M.db[r][i] = v
+	end
 	comma.save_io(db_dir .. tour_no .. "-ximp.db",M.db,"db")
 end
 function load_ximp(tour_no,round)
