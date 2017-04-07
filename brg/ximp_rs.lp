@@ -3,7 +3,7 @@
 <% local url = _G.require("lpp.url") %>
 <html> 
 	<head> 
-		<title>全场计算</title> 
+		<title>全场结果</title> 
 		<%=tour.head %>
 	</head> 
 	<body>
