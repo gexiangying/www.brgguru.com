@@ -1,0 +1,8 @@
+*.exe
+*.swp
+*.dll
+*.db
+*.zip
+brg/jquery
+apcad/session
+test/
