@@ -243,6 +243,30 @@ function save_ximp(tour_no,round,sets,index,players)
 	end
 	comma.save_io(db_dir .. tour_no .. "-ximp.db",M.db,"db")
 end
+
+function add_bonus(tour_no,round,no1,no2,desks)
+	local M = {}
+	M.db = {}
+	local func = loadfile(db_dir .. tour_no .. "-ximp.db","bt",M)
+	if func then func() end 
+	local r = tonumber(round) 
+	M.db[r] = M.db[r] or {}
+	local num = 4 * desks
+	M.db[r][num+1] = {}
+	M.db[r][num+1].no = tonumber(no1)
+	M.db[r][num+1].vp = 12
+	M.db[r][num+1].ximp = 0.0 
+	M.db[r][num+1].mp = 0.0 
+	M.db[r][num+1].boards = 0 
+	M.db[r][num+2] = {}
+	M.db[r][num+2].no = tonumber(no2)
+	M.db[r][num+2].vp = 12
+	M.db[r][num+2].ximp = 0.0 
+	M.db[r][num+2].mp = 0.0 
+	M.db[r][num+2].boards = 0 
+	comma.save_io(db_dir .. tour_no .. "-ximp.db",M.db,"db")
+end
+
 function load_ximp(tour_no,round)
 	local M = {} 
 	M.db = {}
