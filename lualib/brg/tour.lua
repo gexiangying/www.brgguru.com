@@ -66,14 +66,14 @@ pop_header =[[
 
 pop_footer = [[
 <div data-role="footer" data-position="fixed">
-<h4>by gexiangying</h4>
+<h4>by gmexiangying</h4>
 <a href="#test_main" data-icon="arrow-l" class="ui-btn-left"></a>
 </div><!-- /底部 --></div><!-- /页面 -->
 ]]
 
 footer = [[
 <div data-role="footer" data-position="fixed" data-fullscreen="false" data-tap-toggle="false">
-<h4>by gexiangying</h4>
+<h4>by gexiangying@qq.com</h4>
 <a href="index.lp" data-icon="home" class="ui-btn-left"></a>
 </div><!-- /底部 --></div><!-- /页面 -->
 ]]
@@ -91,6 +91,7 @@ end
 local function get_user_name()
 	return db_dir .. "dalian-user-list.db"
 end
+
 
 function load_user_list()
 	local t = {}
@@ -114,6 +115,54 @@ function load_tour_list()
 	if func then func() end
 	return t.db
 end
+
+
+function crt_total(tour_no,rounds)
+	local db = {}
+	db.rounds = tonumber(rounds)
+	db.players = {}
+	comma.save_io(db_dir .. tour_no .. ".db",db,"db")
+end
+
+function add_total(tour_no,name,round,value)
+	local t = {}
+	local func = loadfile(db_dir .. tour_no .. ".db","bt",t)
+	if func then 
+		func() 
+		t.db = t.db or {}
+		t.db.players = t.db.players or {}
+		t.db.players[name] = t.db.players[name] or {} 
+		t.db.players[name][tonumber(round)] = tonumber(value)
+		comma.save_io(db_dir .. tour_no .. ".db",t.db,"db")
+	end
+end
+
+function load_total(tour_no)
+	local t = {}
+	local func = loadfile(db_dir .. tour_no .. ".db","bt",t)
+	if func then 
+		func() 
+		t.db = t.db or {}
+		t.db.players = t.db.players or {}
+		local rounds = t.db.rounds or 0
+		local pls = {}
+    for name,v in pairs(t.db.players) do
+	   local pl = {}
+		 pl.name = name
+		 pl.total = 0
+		 pl.vp = {}
+		 for round,vp in pairs(v) do
+			pl.vp[round] = vp
+			pl.total = pl.total + vp
+		 end
+		 pls[#pls+1] = pl
+		end
+		table.sort(pls,function(a,b) return a.total > b.total end)
+		return pls,rounds
+	end
+	return {},0
+end
+
 function save_tour_list(db)
 	local dayname = get_day_name()
 	comma.save_io(dayname,db,"db")
