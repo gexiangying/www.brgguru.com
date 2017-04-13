@@ -14,7 +14,7 @@
 					local pls,rounds = tour.load_total(tour_no)																					 
 			 %>
       <div data-role="content">
-			<table width="100%" class="ui-responsive table-stripe" >
+			<table width="100%" data-role="table" class="ui-responsive table-stripe" >
 					<thead>
 						<tr>
 							<th>名称</th>
