@@ -17,7 +17,8 @@
 					<li> <a href="admin.lp">创建队式比赛</a></li>
 					<li> <a href="txs.lp">创建通讯赛</a></li>
 					<li> <a href="userlist.lp">人员列表</a></li>
-					<li> <a href="total_score.lp?tour_no=aoxin">澳新杯选拔赛成绩表</a></li>
+					<li> <a href="register_user.lp">比赛报名</a></li>
+					<li> <a href="total_score.lp?tour_no=laotang">老唐杯个人争霸赛</a></li>
 				</ol>
 			<%=tour.footer %>
 		</div>

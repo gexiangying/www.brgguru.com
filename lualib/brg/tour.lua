@@ -91,6 +91,33 @@ end
 local function get_user_name()
 	return db_dir .. "dalian-user-list.db"
 end
+local function get_register_name()
+	local dayname = os.date("%Y-%m-%d")
+	return db_dir .. dayname .. "-register.db"
+end
+function add_partner(no1,no2)
+	local t = {}
+	t.db = {}
+	local func = loadfile(get_register_name(),"bt",t)
+	if func then func() end
+	local db = t.db
+	db[#db +1] = {no1=tonumber(no1),no2=tonumber(no2)}
+	comma.save_io(get_register_name(),db,"db")
+end
+
+function load_partner()
+	local t = {}
+	t.db = {}
+	local func = loadfile(get_register_name(),"bt",t)
+	if func then func() end
+	return t.db
+end
+
+function del_partner(index)
+	local db = load_partner()
+	table.remove(db,tonumber(index))
+	comma.save_io(get_register_name(),db,"db")
+end
 
 
 function load_user_list()
@@ -151,10 +178,13 @@ function load_total(tour_no)
 		 pl.name = name
 		 pl.total = 0
 		 pl.vp = {}
+		 local nums = 0
 		 for round,vp in pairs(v) do
-			pl.vp[round] = vp
-			pl.total = pl.total + vp
+			 nums = nums +1
+			 pl.vp[round] = vp
+			 pl.total = pl.total + vp
 		 end
+		 pl.total = pl.total / nums
 		 pls[#pls+1] = pl
 		end
 		table.sort(pls,function(a,b) return a.total > b.total end)
@@ -162,7 +192,25 @@ function load_total(tour_no)
 	end
 	return {},0
 end
-
+function input_score(tour_no,no,round)
+	local pls = get_tour_pls(no)
+	local urs = load_user_list()
+	local t = {}
+	local func = loadfile(db_dir .. tour_no .. ".db","bt",t)
+	if func then 
+		func() 
+		t.db = t.db or {}
+		t.db.players = t.db.players or {}
+		for i,v in ipairs(pls) do	
+			local name = urs[v.no]
+			t.db.players[name] = t.db.players[name] or {} 
+			t.db.players[name][tonumber(round)] = tonumber(v.vp)
+		end
+		comma.save_io(db_dir .. tour_no .. ".db",t.db,"db")
+		return true
+	end
+	return false
+end
 function save_tour_list(db)
 	local dayname = get_day_name()
 	comma.save_io(dayname,db,"db")
@@ -273,6 +321,30 @@ function get_tour_pls(tour_no)
 	end
 	table.sort(pls,cmp_vp)
 	return pls
+end
+
+function load_vps(pls)
+	local rs = {}
+	for i,v in ipairs(pls) do
+		rs[v.name] = v.total
+	end
+	return rs
+end
+
+function load_register_list()
+	local partners = load_partner()
+	local users = load_user_list()
+	local pls = load_total("laotang")
+	local vps = load_vps(pls)
+	for i,v in ipairs(partners) do
+		v.name1 = users[v.no1]
+		v.name2 = users[v.no2]
+		v.vp1 = vps[v.name1] or 50
+		v.vp2 = vps[v.name2] or 50
+		v.vp = v.vp1 + v.vp2
+	end
+	table.sort(partners,function(a,b) return a.vp > b.vp end)
+	return partners
 end
 
 function save_ximp(tour_no,round,sets,index,players)
