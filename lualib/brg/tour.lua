@@ -180,11 +180,15 @@ function load_total(tour_no)
 		 pl.vp = {}
 		 local nums = 0
 		 for round,vp in pairs(v) do
-			 nums = nums +1
+			 if round < rounds + 1 then
+				 nums = nums +1
+			 end
 			 pl.vp[round] = vp
 			 pl.total = pl.total + vp
 		 end
-		 pl.total = pl.total / nums
+		 if nums > 0 then
+			 pl.total = pl.total / nums
+		 end
 		 pls[#pls+1] = pl
 		end
 		table.sort(pls,function(a,b) return a.total > b.total end)
