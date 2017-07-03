@@ -6,6 +6,7 @@ package.loaded[modename] = M
 --------------------------------
 local comma = require("brg.comma")
 local luabridge = require("brg.luabridge")
+local math = math
 local pairs = pairs
 local assert, error = assert, error
 local ipairs = ipairs
@@ -188,6 +189,7 @@ function load_total(tour_no)
 		 end
 		 if nums > 0 then
 			 pl.total = pl.total / nums
+			 pl.total = math.floor(pl.total * 100)/100
 		 end
 		 pls[#pls+1] = pl
 		end
