@@ -160,7 +160,11 @@ function add_total(tour_no,name,round,value)
 		t.db = t.db or {}
 		t.db.players = t.db.players or {}
 		t.db.players[name] = t.db.players[name] or {} 
-		t.db.players[name][tonumber(round)] = tonumber(value)
+		if tonumber(value) < 1000 then
+			t.db.players[name][tonumber(round)] = tonumber(value)
+		else
+			t.db.players[name][tonumber(round)] = nil
+		end
 		comma.save_io(db_dir .. tour_no .. ".db",t.db,"db")
 	end
 end

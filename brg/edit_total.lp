@@ -73,10 +73,10 @@
 					<td><%=v.total %></td>
 					<% for round=1,rounds do %>
 					<% local linkref = "edit_total.lp?" .. "tour_no=" .. url.escape(tour_no) .. "&name=" .. url.escape(v.name) .. "&round=" .. round %>
-					<td><a href="<%= linkref %>"><%=v.vp[round] or 0 %></a></td>
+					<td><a href="<%= linkref %>"><%=v.vp[round] or 0.00 %></a></td>
 					<% end %>
 					<% local linkref = "edit_total.lp?" .. "tour_no=" .. url.escape(tour_no) .. "&name=" .. url.escape(v.name) .. "&round=" .. rounds+1 %>
-					<td><a href="<%= linkref %>"><%=v.vp[rounds+1] or 0 %></a></td>
+					<td><a href="<%= linkref %>"><%=v.vp[rounds+1] or 0.00 %></a></td>
 					</tr>
           <% end %>
 					<tr>
