@@ -1,12 +1,7 @@
---liaoning ICP 16001504 password = "YFK787"
-hub_start("localhost",8080,10,60,true,false,"hub.lua") --ip port max_accept max_accept_seconds,hubmode,accept and recv
+local http_svr = mq.new("service/http.lua")
+local listen_s =  hub_start("localhost",80,10,http_svr) --ip port max_accept max_accept_seconds
 
-function socket_quit(content)
-	ip,port = hub_addr(content)
-	local exittime = os.date("%x %X")
-	trace_out("unkown client exit @" .. ip .. ":" .. port .. "---" .. exittime .. "\n")
-end
-
-function on_quit()
+function quit()
+	remove_content(listen_s)
 end
 

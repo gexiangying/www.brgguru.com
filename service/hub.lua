@@ -12,9 +12,8 @@ local BOM = string.char(239) .. string.char(187) .. string.char(191)
 local lp = require("lpp.lp")
 
 local default_index ={}
-default_index["www.apcad.com"] = { ["path"] = "apcad",["name"] ="index",["ext"]="lp"}
-default_index["www.sofbuilder.com"] = { ["path"] = "apcad",["name"] ="index",["ext"]="lp"}
-default_index["127.0.0.1"] = { ["path"] ="apcad",["name"] ="index",["ext"]="lp"}
+
+default_index["127.0.0.1"] = { ["path"] ="brg",["name"] ="index",["ext"]="lp"}
 default_index["localhost"] = { ["path"] ="brg",["name"] ="index",["ext"]="lp"}
 default_index["www.brgguru.com"] = default_index["localhost"] 
 default_index["default"] = default_index["localhost"] 
@@ -198,7 +197,7 @@ function process_cmd(content,env,cgi)
 	fix_host(env)
 	--fix_path(env,cgi)
 	trace_out("set_default()\n")
-  set_default(cgi,env.host)
+	set_default(cgi,env.host)
 	trace_out("set default() end \n")
 	cgi._G = _G
 	if cgi.path and cgi.filename and cgi.fileext == "lp" then
@@ -207,81 +206,36 @@ function process_cmd(content,env,cgi)
 		default_handler(content,cgi)
 	end
 end
---[[
-function save_data(content,str)
-	local ip,port = hub_addr(content)
-	local filename = ip .. port
-	local fl = io.open(filename,"wb")
-	if lfs.lock(fl,"w") then
-		fl:write(str)
-		lfs.unlock(fl)
-	end
-	fl:close()
-end
-function exist_data(content)
-	local ip,port = hub_addr(content)
-	local filename = ip .. port
-	local fl = io.open(filename,"rb")
-	if fl then 
-		fl:close()
-		return true
-	else
-		return false
-	end
+
+
+local cts = {}
+local last = {}
+
+function ghub.services.link(content,str)
+	cts[content] = true
 end
 
-function remove_data(content)
-
-	local ip,port = hub_addr(content)
-	local filename = ip .. port
-	os.remove(filename)
-end
-
-function get_data(content)
-	local str = ""
-	local ip,port = hub_addr(content)
-	local filename = ip .. port
-	local fl = io.open(filename,"rb")
-	if lfs.lock(fl,"r") then
-		str = fl:read("a")
-		lfs.unlock(fl)
-	end
-	fl:close()
-	return str
-end
---]]
-function do_send(content)
-end
-
-function do_accept(content,str)
-	ip,port = hub_addr(content)
-	trace_out("do_accept()--thread_num = " .. thread_num .. "  " .. ip .. "@" .. port .. "\n")
-	--trace_out("str.len = " .. string.len(str) .. "\n")
-	--
+function ghub.services.quit(content)
 	
-	if string.len(str) > 0 then
-		local need_content,env,cgi = faseinput(str)
-		if need_content then
-			save_last(content,str)
-			trace_out("do_accept() save_last end\n")
-		else
-			process_cmd(content,env,cgi)
-			trace_out("do_accept() process_cmd() end\n")
-		end
+	if cts[content] then
+		ip,port = hub_addr(content)
+		trace_out("client exit @" .. ip .. ":" ..port .. "\n")
+		remote_content(content)
+		cts[content] = nil
 	end
 end
 
-function do_recv(content,str)
+function ghub.services.recv(content,str)
 	ip,port = hub_addr(content)
-	trace_out("do_recv()--thread_num = " .. thread_num .. "  " .. ip .. "@" .. port .. "\n")
+
 	trace_out("------------------------------------------------------------------\n")
 	trace_out("recv len = " .. string.len(str) .. "\n")
 	trace_out("recv : " .. str .. "\n")
 	trace_out("------------------------------------------------------------------\n")
-  if exist_last(content) then
+  if last[content] then
 		trace_out("do_recv() exist_last \n")
-		str = get_last(content) .. str
-		remove_last(content)
+		str = last[content] .. str
+		last[content] = nil
 		trace_out("do_recv() exist_last end\n")
 	end
 	trace_out("do_recv() faseinput \n")
@@ -289,7 +243,7 @@ function do_recv(content,str)
 	trace_out("do_recv() faseinput end\n")
 	if need_content then
 		trace_out("do_recv() save_last \n")
-		save_last(content,str)
+		last[content] = str
 		trace_out("do_recv() save_last end\n")
 	else
 		trace_out("do_recv() process_cmd() \n")
