@@ -41,7 +41,7 @@ local function faseinput(str)
 	local temp = str
 	local env = {}
 	local cgi = {}
-  local need_content = false
+	local need_content = false
 	local i,j = string.find(str,"\r\n")
 	if not i  or not j then
 		return env,cgi
@@ -55,8 +55,8 @@ local function faseinput(str)
 
 	local last  = string.sub(str,j+1,-1)
 	string.gsub(last,"([^%c%s:]+):%s+([^\n]+)",function(k,v)
-		 k = string.lower(k)
-		 env[k] = v
+		k = string.lower(k)
+		env[k] = v
 	end)
 
 	if env.target then
@@ -77,20 +77,10 @@ local function faseinput(str)
 			decode(s,cgi)
 		end
 	end
-	--[[
-	for k,v in pairs(cgi) do
-		trace_out(k .. ":" .. v .. "\n")
-	end
-	--]]
 	return need_content,env,cgi
 end
 
 local function handle_nofound(content,cgi)
-	--[[
-	local fh = io.open("50x.html")
-	local contents = fh:read("*all")
-	fh:close()
-	--]]
 	local contents = [[
 	<!DOCTYPE html>
 	<html>
@@ -107,15 +97,9 @@ local function handle_nofound(content,cgi)
 	rs = rs .. "Content-Length: " .. string.len(contents) .. "\r\n\r\n"
 	rs = rs .. contents
 	hub_send(content,rs)
-	--local rs = "HTTP/1.1 410 Gone\r\n\r\n" 
-	--hub_send(content,rs)
-	--local s = get_socket(content)
-	--close_socket(s)
-	trace_out("send 404 error\n")
 end
 
 local function default_handler(content,cgi)
-	trace_out("default:" .. cgi.path .. cgi.filename .. "." .. cgi.fileext .. "\n")
 	local contents
 	local fh,err = io.open(cgi.path .. cgi.filename .. "." .. cgi.fileext,"rb")
 	if fh and mime_code[cgi.fileext] then
@@ -142,8 +126,6 @@ local function lua_script(content,cgi)
 	function cgi.outfunc(s)
 		rs_t[#rs_t+1] = s
 	end
-	trace_out("*****************************************************************\n")
-	trace_out("lua_script:" .. cgi.path .. cgi.filename .. "." .. cgi.fileext .. "\n")
 	local fh = io.open(cgi.path .. cgi.filename .. "." .. cgi.fileext,"rb")
 	if fh then
 		fh:close()
@@ -178,12 +160,11 @@ function fix_host(env)
 end
 
 function set_default(cgi,host)
-  if not host or not default_index[host] 	then
+	if not host or not default_index[host] 	then
 		host = "default"
 	end
 	cgi.host = host
 	if cgi.path then
-		trace_out("cgi.path = " .. cgi.path .. "\n")
 		cgi.path = default_index[host].path .. cgi.path .. "/"
 	else
 		cgi.path = default_index[host].path .. "/"
@@ -191,14 +172,10 @@ function set_default(cgi,host)
 	cgi.filename = cgi.filename or default_index[host].name 
 	cgi.fileext = cgi.fileext or default_index[host].ext
 end
-function process_cmd(content,env,cgi)
 
-	trace_out("fix_host()\n")
+function process_cmd(content,env,cgi)
 	fix_host(env)
-	--fix_path(env,cgi)
-	trace_out("set_default()\n")
 	set_default(cgi,env.host)
-	trace_out("set default() end \n")
 	cgi._G = _G
 	if cgi.path and cgi.filename and cgi.fileext == "lp" then
 		lua_script(content,cgi)
@@ -216,7 +193,7 @@ function ghub.services.link(content,str)
 end
 
 function ghub.services.quit(content)
-	
+
 	if cts[content] then
 		ip,port = hub_addr(content)
 		trace_out("client exit @" .. ip .. ":" ..port .. "\n")
@@ -229,26 +206,17 @@ function ghub.services.recv(content,str)
 	ip,port = hub_addr(content)
 
 	trace_out("------------------------------------------------------------------\n")
-	trace_out("recv len = " .. string.len(str) .. "\n")
 	trace_out("recv : " .. str .. "\n")
 	trace_out("------------------------------------------------------------------\n")
-  if last[content] then
-		trace_out("do_recv() exist_last \n")
+	if last[content] then
 		str = last[content] .. str
 		last[content] = nil
-		trace_out("do_recv() exist_last end\n")
 	end
-	trace_out("do_recv() faseinput \n")
 	local need_content,env,cgi = faseinput(str)
-	trace_out("do_recv() faseinput end\n")
 	if need_content then
-		trace_out("do_recv() save_last \n")
 		last[content] = str
-		trace_out("do_recv() save_last end\n")
 	else
-		trace_out("do_recv() process_cmd() \n")
 		process_cmd(content,env,cgi)
-		trace_out("do_recv() process_cmd() end\n")
 	end
 end
 
