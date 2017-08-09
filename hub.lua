@@ -7,7 +7,6 @@ local url = require("lpp.url")
 local unescape = url.unescape
 local escape = url.escape
 
-apcad_server = "127.0.0.1"
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 local lp = require("lpp.lp")
