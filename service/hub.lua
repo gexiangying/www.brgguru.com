@@ -117,6 +117,7 @@ local function default_handler(content,cgi)
 	rs = rs .. "\r\n"
 	hub_send(content,rs)
 	hub_send(content,contents)
+	contents = nil
 end
 
 local function lua_script(content,cgi)

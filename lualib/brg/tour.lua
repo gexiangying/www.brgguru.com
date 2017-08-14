@@ -67,20 +67,20 @@ pop_header =[[
 
 pop_footer = [[
 <div data-role="footer" data-position="fixed">
-<h4>by gexiangying  辽ICP备160001504</h4>
+<h4>辽ICP备160001504</h4>
 <a href="#test_main" data-icon="arrow-l" class="ui-btn-left"></a>
 </div><!-- /底部 --></div><!-- /页面 -->
 ]]
 
 footer = [[
 <div data-role="footer" data-position="fixed" data-fullscreen="false" data-tap-toggle="false">
-<h4>by gexiangying@qq.com 辽ICP备160001504</h4>
+<h4>辽ICP备160001504</h4>
 <a href="index.lp" data-icon="home" class="ui-btn-left"></a>
 </div><!-- /底部 --></div><!-- /页面 -->
 ]]
 adminfooter = [[
 <div data-role="footer" data-position="fixed" data-fullscreen="false" data-tap-toggle="false">
-<h4>by gexiangying  辽ICP备160001504</h4>
+<h4>辽ICP备160001504</h4>
 <a href="ge.lp" data-icon="home" class="ui-btn-left"></a>
 </div><!-- /底部 --></div><!-- /页面 -->
 ]]
