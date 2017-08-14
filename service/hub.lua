@@ -198,6 +198,7 @@ function ghub.services.quit(content)
 	if cts[content] then
 		ip,port = hub_addr(content)
 		trace_out("client exit @" .. ip .. ":" ..port .. "\n")
+		last[content] = nil
 		remote_content(content)
 		cts[content] = nil
 	end
