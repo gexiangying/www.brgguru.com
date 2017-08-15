@@ -9,18 +9,6 @@ local table = table
 
 _ENV = M
 
-function code(t)
-	local str
-	for k,v in pairs(t) do
-   if str and k and v then
-		 str = str .. "&" .. escape(k) .. "=" .. escape(v)
-	 elseif k and v then
-		 str = escape(k) .. "=" ..escape(v)
-	 end
-	end
-	return str
-end
-
 function unescape(s)
 	s = string.gsub(s,"+"," ")
 	s = string.gsub(s,"%%(%x%x)",function(h)
