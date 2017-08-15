@@ -1,9 +1,11 @@
 package.path = package.path .. ";./lualib/?.lua"
+package.cpath = "?53.dll;?.dll;" .. package.cpath
 local mime_code = require "lpp.mime_code"
 luaext = require("luaext")
 socket = require("socket")
 local lfs = require("lfs")
 local url = require("lpp.url")
+local lfs = require("lfs")
 local unescape = url.unescape
 local escape = url.escape
 
@@ -101,23 +103,28 @@ end
 
 local function default_handler(content,cgi)
 	local contents
-	local fh,err = io.open(cgi.path .. cgi.filename .. "." .. cgi.fileext,"rb")
-	if fh and mime_code[cgi.fileext] then
-		contents = fh:read("*a")
-		if contents:sub(1,3) == BOM then contents = contents:sub(4) end
+	local fname = cgi.path .. cgi.filename .. "." .. cgi.fileext
+	local fh,err = io.open(fname,"rb")
+	local f_size = 0
+	local exist = fh and true
+	if fh then fh:close() end
+	if exist and mime_code[cgi.fileext] then
+		--contents = fh:read("*a")
+		--if contents:sub(1,3) == BOM then contents = contents:sub(4) end
+		f_size = lfs.attributes(fname,"size")
 	else
 		trace_out(err .. "\n")
 		return handle_nofound(content,cgi)
 	end
-	if fh then fh:close() end
 	local rs = "HTTP/1.1 200 OK\r\n" 
 	rs = rs .. "Content-Type: " .. mime_code[cgi.fileext] .. "\r\n"
-	rs = rs .. "Content-Length: " .. string.len(contents) .. "\r\n"
+	rs = rs .. "Content-Length: " .. f_size .. "\r\n"
 	rs = rs .. "Cache-Control: max-age=86400\r\n"
 	rs = rs .. "\r\n"
 	hub_send(content,rs)
-	hub_send(content,contents)
-	contents = nil
+	TransmitFile(content,fname,"","")
+	--hub_send(content,contents)
+	--contents = nil
 end
 
 local function lua_script(content,cgi)
