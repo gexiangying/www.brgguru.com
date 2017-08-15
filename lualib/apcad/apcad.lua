@@ -101,7 +101,7 @@ function session_save(id,k,v)
 	if func then func() end
 	t.db[id] = t.db[id] or {}
 	t.db[id][k] = v
-	comma.save_file(session_dir .. id,t.db,"db")
+	comma.save_io(session_dir .. id,t.db,"db")
 end
 
 function sessionid()
