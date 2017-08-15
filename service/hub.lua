@@ -9,12 +9,10 @@ local lfs = require("lfs")
 local unescape = url.unescape
 local escape = url.escape
 
-
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 local lp = require("lpp.lp")
 
 local default_index ={}
-
 default_index["127.0.0.1"] = { ["path"] ="brg",["name"] ="index",["ext"]="lp"}
 default_index["localhost"] = { ["path"] ="apcad",["name"] ="index",["ext"]="lp"}
 default_index["jquery.brgguru.com"] = { ["path"] ="jquery",["name"] ="index",["ext"]="lp"}
@@ -176,6 +174,7 @@ function set_default(cgi,host)
 	cgi.host = host
 	if cgi.path then
 		cgi.path = default_index[host].path .. cgi.path .. "/"
+		cgi.path = string.gsub(cgi.path,default_index[host].path .. "/jquery","jquery")
 	else
 		cgi.path = default_index[host].path .. "/"
 	end
