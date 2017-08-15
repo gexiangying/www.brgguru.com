@@ -25,9 +25,9 @@ local session_dir = "apcad/session/"
 head = [[
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1"> 
-<link rel="stylesheet" href="http://jquery.brgguru.com/jquery.mobile-1.4.5.min.css">
-<script src="http://jquery.brgguru.com/jquery-1.11.1.min.js"></script>
-<script src="http://jquery.brgguru.com/jquery.mobile-1.4.5.min.js"></script>
+<link rel="stylesheet" href="jquery/jquery.mobile-1.4.5.min.css">
+<script src="jquery/jquery-1.11.1.min.js"></script>
+<script src="jquery/jquery.mobile-1.4.5.min.js"></script>
 ]]
 function header(sessionid)
 	local header_str
