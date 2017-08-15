@@ -3,7 +3,7 @@ local M = {}
 _G[modename] = M
 package.loaded[modename] = M
 
-local comma = require("brg.comma")
+local comma = require("comma")
 local assert, error = assert, error
 local load= load
 local pairs = pairs

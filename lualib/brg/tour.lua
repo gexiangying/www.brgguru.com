@@ -4,7 +4,7 @@ _G[modename] = M
 package.loaded[modename] = M
 
 --------------------------------
-local comma = require("brg.comma")
+local comma = require("comma")
 local luabridge = require("brg.luabridge")
 local math = math
 local pairs = pairs
