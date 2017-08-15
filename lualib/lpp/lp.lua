@@ -9,7 +9,7 @@ local loadstring = loadstring or load
 local find, format, gsub, strsub, char = string.find, string.format, string.gsub, string.sub, string.char
 local concat, tinsert = table.concat, table.insert
 local open = io.open
-
+local trace_out = trace_out
 local M = {}
 
 ----------------------------------------------------------------------------
@@ -109,7 +109,9 @@ function M.compile (string, chunkname, env)
 		cache[string] = s
 	end
 	local f, err = load (s, chunkname, "bt", env)
-	if not f then error (err, 3) end
+	if not f then 
+		trace_out(err .. "\n")
+	end
 	return f
 end
 
@@ -130,34 +132,10 @@ function M.include (filename, env)
 	if src:sub(1,3) == BOM then src = src:sub(4) end
 	-- translates the file into a function
 	local prog = M.compile (src, '@'..filename, env)
-	prog ()
+	local status,err = pcall(prog)
+	if not status then
+		trace_out(err .. "\n")
+	end
 end
 
-function M.combine(s,chunkname,env)
-	local f, err = load (s, chunkname, "bt", env)
-	if not f then error (err, 3) end
-	return f
-end
-function M.get_src(filename)
-	local fh = assert (open (filename))
-	local src = fh:read("*a")
-	fh:close()
-	if src:sub(1,3) == BOM then src = src:sub(4) end
-	return src
-end
-function M.run(filename,env)
-	local s = cache[filename]
-	trace_out("**************************************************\n\n")
-	if not s then
-		trace_out("compile :" .. filename .. "-----thread: " .. thread_num .. "\n")
-	  local src = M.get_src(filename)	
-		s = M.translate(src)
-		cache[filename] = s
-	end
-	trace_out("combine:" .. filename .. "-----thread:" .. thread_num .. "\n")
-	local prog = M.combine(s, '@'..filename, env)
-	trace_out("run:" .. filename .. "-----thread:" .. thread_num .. "\n")
-	prog ()
-	trace_out("run end:" .. filename .. "-----thread:" .. thread_num .. "\n")
-end
 return M
