@@ -79,7 +79,7 @@
 					      m.soft = k
 					      m.price = softs[k].price
 					      m.sessionid = sessionid
-								local ref_str = "soft.lp?" .. url.code(m)
+								local ref_str = "soft.lp?" .. url.encodetable(m)
 								--local soft_dir = _G.string.sub(k,1,2)
 							%>
 							<li>
