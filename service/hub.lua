@@ -228,6 +228,7 @@ function ghub.services.recv(content,str)
 	else
 		process_cmd(content,env,cgi)
 	end
+	post_recv(content,luaext.guid())
 end
 
 
