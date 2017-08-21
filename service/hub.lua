@@ -112,6 +112,8 @@ local function default_handler(content,cgi)
 		--contents = fh:read("*a")
 		--if contents:sub(1,3) == BOM then contents = contents:sub(4) end
 		f_size = lfs.attributes(fname,"size")
+	elseif exist then
+		trace_out("need mimecode :" .. fname .. "\n")
 	else
 		trace_out(err .. "\n")
 		return handle_nofound(content,cgi)
