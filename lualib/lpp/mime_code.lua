@@ -170,5 +170,8 @@ return {
   mxu = "video/vnd.mpegurl",
   avi = "video/x-msvideo",
   movie = "video/x-sgi-movie",
+	woff = "application/x-font-woff",
+	woff2 = "application/x-font-woff",
+	ttf = "application/octet-stream",
   ice = "x-conference/x-cooltalk",
 }
