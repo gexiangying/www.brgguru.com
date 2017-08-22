@@ -172,6 +172,7 @@ return {
   movie = "video/x-sgi-movie",
 	woff = "application/x-font-woff",
 	woff2 = "application/x-font-woff",
+	json = "application/json",
 	ttf = "application/octet-stream",
   ice = "x-conference/x-cooltalk",
 }
