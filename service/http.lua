@@ -1,6 +1,6 @@
 local luaext = require("luaext")
 local agent = {}
-for i=1,20 do
+for i=1,10 do
 	agent[i] = mq.new("service/hub.lua",true)
 end
 local index = 1
