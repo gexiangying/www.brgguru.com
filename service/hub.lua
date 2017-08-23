@@ -18,6 +18,7 @@ default_index["localhost"] = { ["path"] ="apcad",["name"] ="index",["ext"]="lp"}
 default_index["jquery.brgguru.com"] = { ["path"] ="jquery",["name"] ="index",["ext"]="lp"}
 default_index["www.apcad.com"] = default_index["localhost"] 
 default_index["www.brgguru.com"] = default_index["127.0.0.1"] 
+default_index["brg.brgguru.com"] = default_index["127.0.0.1"] 
 default_index["default"] = default_index["localhost"] 
 
 local function decode(s,cgi)
