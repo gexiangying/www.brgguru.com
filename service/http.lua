@@ -1,6 +1,7 @@
 local luaext = require("luaext")
 local agent = {}
-for i=1,10 do
+local max_agents = 10
+for i=1,max_agents do
 	agent[i] = mq.new("service/hub.lua",true)
 end
 local index = 1
@@ -8,6 +9,6 @@ local index = 1
 function ghub.services.accept(content)
 	link_iocp(content,agent[index])
 	index = index + 1
-	if index > 20 then index = 1 end
+	if index > max_agents then index = 1 end
 	post_recv(content,luaext.guid())
 end
