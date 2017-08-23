@@ -173,6 +173,7 @@ return {
 	woff = "application/x-font-woff",
 	woff2 = "application/x-font-woff",
 	json = "application/json",
+	map = "magnus_iternal/imagemap",
 	ttf = "application/octet-stream",
   ice = "x-conference/x-cooltalk",
 }
