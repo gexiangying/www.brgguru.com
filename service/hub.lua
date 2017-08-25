@@ -8,6 +8,8 @@ local url = require("lpp.url")
 local lfs = require("lfs")
 local unescape = url.unescape
 local escape = url.escape
+local cjson = require("cjson")
+json = cjson.new()
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 local lp = require("lpp.lp")
@@ -76,8 +78,12 @@ local function faseinput(str)
 		if head_str and head_str == temp then
 			need_content = true
 		else
-			local s = string.sub(temp,-tonumber(env["content-length"]),-1)
-			decode(s,cgi)
+			local data = string.sub(temp,-tonumber(env["content-length"]),-1)
+			if string.find(env["content-type"],"application/json") then
+				cgi.jsonData =	json.decode(data) 
+			else
+				decode(data,cgi)
+			end
 		end
 	end
 	return need_content,env,cgi
