@@ -143,6 +143,8 @@ local function lua_script(content,cgi)
 	function cgi.outfunc(s)
 		rs_t[#rs_t+1] = s
 	end
+	cgi.echo = cgi.outfunc
+	cgi.json = json
 	local fh = io.open(cgi.path .. cgi.filename .. "." .. cgi.fileext,"rb")
 	if fh then
 		fh:close()
