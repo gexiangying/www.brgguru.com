@@ -69,7 +69,7 @@ local function farse_header(str,env,cgi)
 	end
 end
 
-local function farse_form_data(env,cgi)
+local function farse_form_data(env,cgi,content)
 	local data 
 	if string.find(env["content-type"],"application/json") then
 		data = table.concat(Last[content].datas)
@@ -116,7 +116,7 @@ local function farseinput(content,str)
 		if(Last[content].datalen < len) then
 			need_content = true
 		else
-			farse_form_data(env,cgi)
+			farse_form_data(env,cgi,content)
 		end
 	end
 
