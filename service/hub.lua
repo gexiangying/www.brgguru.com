@@ -76,9 +76,12 @@ local function farse_form_data(env,cgi,content)
 		cgi.jsonData =	json.decode(data) 
 	elseif string.find(env["content-type"],"multipart/form-data",1,true) then
 		trace_out("form-data\n")	
-	else
+	elseif string.find(env["content-type"],"application/x-www-form-urlencoded",1,true) then
 		data = table.concat(Last[content].datas)
 		decode(data,cgi)
+	else
+		data = table.concat(Last[content].datas)
+		cgi.postdata = data
 	end
 end
 
