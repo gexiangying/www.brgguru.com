@@ -5,28 +5,22 @@ luaext = require("luaext")
 socket = require("socket")
 local lfs = require("lfs")
 local url = require("lpp.url")
-local lfs = require("lfs")
 local unescape = url.unescape
 local escape = url.escape
+local router = require("http.router")
 local cjson = require("cjson")
 json = cjson.new()
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
 local lp = require("lpp.lp")
 
-local default_index ={}
-default_index["127.0.0.1"] = { ["path"] ="brg",["name"] ="index",["ext"]="lp"}
-default_index["localhost"] = { ["path"] ="apcad",["name"] ="index",["ext"]="lp"}
-default_index["jquery.brgguru.com"] = { ["path"] ="jquery",["name"] ="index",["ext"]="lp"}
-default_index["www.apcad.com"] = default_index["localhost"] 
-default_index["www.brgguru.com"] = default_index["127.0.0.1"] 
-default_index["brg.brgguru.com"] = default_index["127.0.0.1"] 
-default_index["default"] = default_index["localhost"] 
+local cts = {}
+local Last = {}
 
 local function decode(s,cgi)
 	for name,value in string.gmatch(s,"([^&=]+)=([^&=]+)") do
-		name = unescape(name)
-		value = unescape(value)
+		local name = unescape(name)
+		local value = unescape(value)
 		cgi[name] = value
 	end
 end
@@ -41,15 +35,15 @@ local function fasefile(s,cgi)
 	end
 end
 
-local function faseinput(str)
-	local line
-	local temp = str
-	local env = {}
-	local cgi = {}
-	local need_content = false
+local function split_header_data(str)
+	local header,data = string.match(str,"(.-)\r\n\r\n(.*)")
+	return header,data
+end
+
+local function farse_header(str,env,cgi)
 	local i,j = string.find(str,"\r\n")
 	if not i  or not j then
-		return env,cgi
+		return 
 	end
 	local first = string.sub(str,1,i-1)
 	local method,target = string.match(first,"([^%s]+)%s+([^%s]+)%s+.*")
@@ -73,21 +67,62 @@ local function faseinput(str)
 			fasefile(env.target,cgi)
 		end
 	end
+end
+
+local function farse_form_data(env,cgi)
+	local data 
+	if string.find(env["content-type"],"application/json") then
+		data = table.concat(Last[content].datas)
+		cgi.jsonData =	json.decode(data) 
+	elseif string.find(env["content-type"],"multipart/form-data",1,true) then
+		trace_out("form-data\n")	
+	else
+		data = table.concat(Last[content].datas)
+		decode(data,cgi)
+	end
+end
+
+local function farseinput(content,str)
+	local env = {}
+	local cgi = {}
+	local need_content = false
+
+	if not Last[content] or not Last[content].env then
+		local header,data = split_header_data(str)
+		if not header then return true,env,cgi end
+
+		farse_header(header,env,cgi)
+		trace_out("\n" .. header .. "\n\n")
+		Last[content] = {}
+		Last[content].env = env
+		Last[content].cgi = cgi
+		Last[content].datas = {} 
+		local datas = Last[content].datas 
+		if data then
+			datas[#datas + 1] = data
+			Last[content].datalen = string.len(data)
+		end
+	else
+		env = Last[content].env
+		cgi = Last[content].cgi
+		local datas = Last[content].datas 
+		datas[#datas + 1] = str 
+		Last[content].datalen = Last[content].datalen + string.len(str)
+		--trace_out("recv form length = " .. Last[content].datalen .. "\n") 
+	end
+
 	if env.method == "POST" and env["content-length"] then
-		local head_str = string.match(temp,"(.-\r\n\r\n).*")
-		if head_str and head_str == temp then
+		local len = tonumber(env["content-length"])
+		if(Last[content].datalen < len) then
 			need_content = true
 		else
-			local data = string.sub(temp,-tonumber(env["content-length"]),-1)
-			if string.find(env["content-type"],"application/json") then
-				cgi.jsonData =	json.decode(data) 
-			else
-				decode(data,cgi)
-			end
+			farse_form_data(env,cgi)
 		end
 	end
+
 	return need_content,env,cgi
 end
+
 
 local function handle_nofound(content,cgi)
 	local contents = [[
@@ -163,38 +198,12 @@ local function lua_script(content,cgi)
 	end
 end
 
-function fix_host(env)
-	if env.host then
-		host,port = string.match(env.host,"([%a%d%.]+):([%a%d%.]+)")
-		if host and port then
-			env.host = host
-			env.port = port
-		else
-			host = string.match(env.host,"([%a%d%.]+)")
-			if host then
-				env.host = host
-			end
-		end
-	end
-end
-
 function set_default(cgi,host)
-	if not host or not default_index[host] 	then
-		host = "default"
-	end
-	cgi.host = host
-	if cgi.path then
-		cgi.path = default_index[host].path .. cgi.path .. "/"
-		cgi.path = string.gsub(cgi.path,default_index[host].path .. "/jquery","jquery")
-	else
-		cgi.path = default_index[host].path .. "/"
-	end
-	cgi.filename = cgi.filename or default_index[host].name 
-	cgi.fileext = cgi.fileext or default_index[host].ext
+	--cgi.host = host
+	router.dispatch(cgi,host)
 end
 
 function process_cmd(content,env,cgi)
-	fix_host(env)
 	set_default(cgi,env.host)
 	cgi._G = _G
 	if cgi.path and cgi.filename and cgi.fileext == "lp" then
@@ -205,39 +214,33 @@ function process_cmd(content,env,cgi)
 end
 
 
-local cts = {}
-local last = {}
 
 function ghub.services.link(content,str)
 	cts[content] = true
 end
 
 function ghub.services.quit(content)
-
 	if cts[content] then
 		ip,port = hub_addr(content)
 		trace_out("client exit @" .. ip .. ":" ..port .. "\n")
-		last[content] = nil
+		Last[content] = nil
 		remote_content(content)
 		cts[content] = nil
 	end
 end
 
 function ghub.services.recv(content,str)
-	ip,port = hub_addr(content)
-
-	trace_out("------------------------------------------------------------------\n")
-	trace_out("recv : " .. str .. "\n")
-	trace_out("------------------------------------------------------------------\n")
-	if last[content] then
-		str = last[content] .. str
-		last[content] = nil
-	end
-	local need_content,env,cgi = faseinput(str)
-	if need_content then
-		last[content] = str
-	else
+	local need_content,env,cgi = farseinput(content,str)
+	if not need_content then
 		process_cmd(content,env,cgi)
+		Last[content] = nil
+		str = nil
+		local memCount = collectgarbage("count")
+		if memCount > 30000 then collectgarbage("collect") end
+		--[[
+		collectgarbage("collect")
+		trace_out("@agent:" .. agentNo .. " Used Memory:" .. collectgarbage("count") .. "K \n")
+		--]]
 	end
 	post_recv(content,luaext.guid())
 end
