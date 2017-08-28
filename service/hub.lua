@@ -10,6 +10,7 @@ local escape = url.escape
 local router = require("http.router")
 local cjson = require("cjson")
 local post = require("lpp.post")
+local config = require("http.config")
 json = cjson.new()
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
@@ -91,7 +92,7 @@ local function get_read(content)
 end 
 
 local function tmpfile(filename)
-	local f,err = io.open("uploadfile/" .. filename,"wb")
+	local f,err = io.open(config.upload_dir .. filename,"wb")
 	return f,err
 end
 local function farse_multi_part(env,cgi,content)
@@ -103,8 +104,8 @@ local function farse_multi_part(env,cgi,content)
 		tmp = tmpfile,
 		content_type = env["content-type"],
 		content_length = env["content-length"],
-		maxinput = 500 * 1024 * 1024,
-		maxfilesize = 100 * 1024 * 1024,
+		maxinput = config.maxinput,
+		maxfilesize = config.maxfilesize,
 		args = cgi
 	}
 end
