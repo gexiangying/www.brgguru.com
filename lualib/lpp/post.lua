@@ -21,28 +21,24 @@ local M ={}
 _G[modename] = M
 package.loaded[modename] = M
 
-require"lpp.readuntil"
-require"lpp.urlcode"
-
-local assert, error, pairs, tonumber, tostring, type = assert, error, pairs, tonumber, tostring, type
+local assert, pairs, tonumber, tostring, type = assert,  pairs, tonumber, tostring, type
+local error = trace_out
 local getn, tinsert = table.getn, table.insert
 local format, gsub, strfind, strlower, strlen = string.format, string.gsub, string.find, string.lower, string.len
-local min = math.min
-local iterate = lpp.readuntil.iterate
-local urlcode = lpp.url
-local tmpfile = io.tmpfile
+local iterate = require("lpp.readuntil").iterate
+local urlcode =	require("lpp.url") 
+local tmpfile =	nil
 
 -- environment for processing multipart/form-data input
 local boundary = nil      -- boundary string that separates each 'part' of input
 local maxfilesize = nil   -- maximum size for file upload
 local maxinput = nil      -- maximum size of total POST data
-local inputfile = nil     -- temporary file for inputting form-data
-local bytesleft = nil     -- number of bytes yet to be read
+--local inputfile = nil     -- temporary file for inputting form-data
+--local bytesleft = nil     -- number of bytes yet to be read
 local content_type = nil  -- request's content-type
 -- local functions
 local discardinput = nil  -- discard all remaining input
 local readuntil = nil     -- read until delimiter
-local read = nil          -- basic read function
 
 
 _ENV = M
@@ -108,11 +104,13 @@ end
 local function readfieldcontents ()
 	local value = ""
 	local boundaryline = "\r\n"..boundary
-	local out = function (str) value = value..str end
+	--local boundaryline = boundary
+	local out = function (str) value = value .. str end
 	if readuntil (boundaryline, out) then
 		return value
 	else
-		error("Error processing multipart/form-data.\nUnexpected end of input\n")
+		error("value:" .. value .. "!!!\n")
+		error("Error processing multipart/form-data @readfiledcontents.\nUnexpected end of input\n")
 	end
 end
 
@@ -121,9 +119,9 @@ end
 --
 local function fileupload (filename)
 	-- create a temporary file for uploading the file field
-	local file, err = tmpfile()
+	local file, err = tmpfile(filename)
 	if file == nil then
-		discardinput(bytesleft)
+		discardinput()
 		error("Cannot create a temporary file.\n"..err)
 	end      
 	local bytesread = 0
@@ -131,7 +129,7 @@ local function fileupload (filename)
 	local out = function (str)
 		local sl = strlen (str)
 		if bytesread + sl > maxfilesize then
-			discardinput (bytesleft)
+			discardinput()
 			error (format ("Maximum file size (%d kbytes) exceeded while uploading `%s'", maxfilesize / 1024, filename))
 		end
 		file:write (str)
@@ -183,22 +181,9 @@ end
 --
 -- If the field is not of type 'file', [[value]] contains the field 
 -- contents.
---
 local function Main (inputsize, args)
-
-	-- create a temporary file for processing input data
-	local inputf,err = tmpfile()
-	if inputf == nil then
-		discardinput(inputsize)
-		error("Cannot create a temporary file.\n"..err)
-	end
-
-	-- set the environment for processing the multipart/form-data
-	inputfile = inputf
-	bytesleft = inputsize
 	maxfilesize = maxfilesize or inputsize 
 	boundary = getboundary()
-
 	while true do
 		-- read the next field header(s)
 		local headers = readfieldheaders()
@@ -206,7 +191,7 @@ local function Main (inputsize, args)
 
 		-- get the name attributes for the form field (name and filename)
 		local name, filename = getfieldnames(headers)
-
+		
 		-- get the field contents
 		local value
 		if filename then
@@ -215,7 +200,6 @@ local function Main (inputsize, args)
 		else
 			value = readfieldcontents()
 		end
-
 		-- insert the form field into table [[args]]
 		urlcode.insertfield(args, name, value)
 	end
@@ -232,16 +216,8 @@ end
 --
 local function init (defs)
 	assert (defs.read)
-	read = defs.read
-	readuntil = iterate (function ()
-        if bytesleft then
-            if bytesleft <= 0 then return nil end
-            local n = min (bytesleft, 2^13) -- 2^13 == 8192
-            local bytes = read (n)
-            bytesleft = bytesleft - #bytes
-            return bytes
-        end
-	end)
+	readuntil = iterate (defs.read)
+	tmpfile = defs.tmp
 	if defs.discard_function then
 		discardinput = defs.discardinput
 	else
@@ -273,8 +249,7 @@ function parsedata (defs)
 	local inputsize = tonumber(defs.content_length) or 0
 	if inputsize > maxinput then
 		-- some Web Servers (like IIS) require that all the incoming data is read 
-		bytesleft = inputsize
-		discardinput(inputsize)
+		discardinput()
 		error(format("Total size of incoming data (%d KB) exceeds configured maximum (%d KB)",
 			inputsize /1024, maxinput / 1024))
 	end
@@ -285,11 +260,11 @@ function parsedata (defs)
 		error("Undefined Media Type") 
 	end
 	if strfind(contenttype, "x-www-form-urlencoded", 1, true) then
-		urlcode.parsequery (read (inputsize), defs.args)
+		urlcode.parsequery (defs.read(), defs.args)
 	elseif strfind(contenttype, "multipart/form-data", 1, true) then
 		Main (inputsize, defs.args)
 	elseif strfind (contenttype, "application/xml", 1, true) or strfind (contenttype, "text/xml", 1, true) or strfind (contenttype, "text/plain", 1, true) then
-		tinsert (defs.args, read (inputsize))
+		tinsert (defs.args,defs.read())
 	else
 		error("Unsupported Media Type: "..contenttype)
 	end

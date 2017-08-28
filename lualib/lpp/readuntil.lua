@@ -9,7 +9,6 @@ _G[modename] = M
 package.loaded[modename] = M
 
 local strsub, strfind, strlen = string.sub, string.find, string.len
-
 _ENV = M
 ----------------------------------------------------------------------------
 -- Creates a function which reads an input until a given character.
@@ -23,7 +22,7 @@ function iterate (inp)
 		local dellen = strlen(del) 
 		local i, e
 		while true do
-			i, e = strfind(current, del, 1, 1)
+			i, e = strfind(current, del, 1, true)
 			if i then break end
 			local new = inp()
 			if not new then break end

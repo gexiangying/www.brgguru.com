@@ -9,6 +9,7 @@ local unescape = url.unescape
 local escape = url.escape
 local router = require("http.router")
 local cjson = require("cjson")
+local post = require("lpp.post")
 json = cjson.new()
 
 local BOM = string.char(239) .. string.char(187) .. string.char(191)
@@ -53,7 +54,7 @@ local function farse_header(str,env,cgi)
 	end
 
 	local last  = string.sub(str,j+1,-1)
-	string.gsub(last,"([^%c%s:]+):%s+([^\n]+)",function(k,v)
+	string.gsub(last,"([^%c%s:]+):%s+(.-)\r\n",function(k,v)
 		k = string.lower(k)
 		env[k] = v
 	end)
@@ -68,6 +69,45 @@ local function farse_header(str,env,cgi)
 		end
 	end
 end
+local function get_discard(content)
+	Last[content] = Last[content] or {}
+	local datas = Last[content].datas or {}
+	return function()
+		Last[content].dataindex = #datas + 1 
+	end
+end
+local function get_read(content)
+	Last[content] = Last[content] or {}
+	Last[content].dataindex = 1
+	local datas = Last[content].datas or {}
+	return function()
+		if #datas < Last[content].dataindex then
+			return nil 
+		end
+		local str = datas[Last[content].dataindex]
+		Last[content].dataindex = Last[content].dataindex + 1
+		return str
+	end
+end 
+
+local function tmpfile(filename)
+	local f,err = io.open("uploadfile/" .. filename,"wb")
+	return f,err
+end
+local function farse_multi_part(env,cgi,content)
+	local lread = get_read(content)
+	local ldiscard = get_discard(content)
+	post.parsedata{
+		read = lread,
+		discardinput = ldiscard,
+		tmp = tmpfile,
+		content_type = env["content-type"],
+		content_length = env["content-length"],
+		maxinput = 500 * 1024 * 1024,
+		maxfilesize = 100 * 1024 * 1024,
+		args = cgi
+	}
+end
 
 local function farse_form_data(env,cgi,content)
 	local data 
@@ -75,7 +115,7 @@ local function farse_form_data(env,cgi,content)
 		data = table.concat(Last[content].datas)
 		cgi.jsonData =	json.decode(data) 
 	elseif string.find(env["content-type"],"multipart/form-data",1,true) then
-		trace_out("form-data\n")	
+		farse_multi_part(env,cgi,content)
 	elseif string.find(env["content-type"],"application/x-www-form-urlencoded",1,true) then
 		data = table.concat(Last[content].datas)
 		decode(data,cgi)
@@ -101,7 +141,8 @@ local function farseinput(content,str)
 		Last[content].cgi = cgi
 		Last[content].datas = {} 
 		local datas = Last[content].datas 
-		if data then
+		Last[content].datalen = 0
+		if string.len(data)>0 then
 			datas[#datas + 1] = data
 			Last[content].datalen = string.len(data)
 		end
