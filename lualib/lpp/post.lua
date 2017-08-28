@@ -268,4 +268,5 @@ function parsedata (defs)
 	else
 		error("Unsupported Media Type: "..contenttype)
 	end
+	readuntil = nil
 end
