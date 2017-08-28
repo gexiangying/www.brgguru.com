@@ -201,13 +201,9 @@ local function lua_script(content,cgi)
 	end
 end
 
-function set_default(cgi,host)
-	--cgi.host = host
-	router.dispatch(cgi,host)
-end
 
 function process_cmd(content,env,cgi)
-	set_default(cgi,env.host)
+	router.dispatch(cgi,env.host)
 	cgi._G = _G
 	if cgi.path and cgi.filename and cgi.fileext == "lp" then
 		lua_script(content,cgi)
@@ -240,10 +236,6 @@ function ghub.services.recv(content,str)
 		str = nil
 		local memCount = collectgarbage("count")
 		if memCount > 30000 then collectgarbage("collect") end
-		--[[
-		collectgarbage("collect")
-		trace_out("@agent:" .. agentNo .. " Used Memory:" .. collectgarbage("count") .. "K \n")
-		--]]
 	end
 	post_recv(content,luaext.guid())
 end
