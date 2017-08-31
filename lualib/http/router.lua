@@ -29,7 +29,7 @@ routes["default"] = routes["localhost"]
 
 function dispatch(cgi,host)
 	host = host or "default"
-	local route 
+	local route = routes["default"]
 	for i,v in ipairs(sites) do
 		if string.find(host,v) then
 			route = routes[v]
