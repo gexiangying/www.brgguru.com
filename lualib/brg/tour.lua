@@ -414,6 +414,7 @@ end
 
 function load_db(tour_no,round,desk)
 	local M = {} 
+	M.db = {}
 	local func = loadfile(db_dir .. tour_no .. "-" .. round .. "-" .. desk .. ".db","bt",M)	
 	if func then func() end 
 	return M.db
