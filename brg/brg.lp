@@ -122,7 +122,7 @@
    if sets[set_num] and tour.auth_edit(tour_no,passwd) then
 			sets[set_num] = nil 
 			tour.save_db(tour_no,round,desk,M.db)
-   elseif not sets[set_num] and input_flag then
+   elseif input_flag then
 			sets[set_num] = {}
 			sets[set_num].contract = contract
 			sets[set_num].lead = lead_color .. lead_card
