@@ -8,9 +8,12 @@ local ws_mt = { __index = ws }
 
 local function read(self,n)
 	while string.len(self.buf) < n do
-		post_recv(self.id,ghub.reg.session)
-		local ct,str = coroutine.yield()
-		self.buf = self.buf .. str
+		local str = mq.recv(self.id)
+		if str then
+			self.buf = self.buf .. str
+		else
+			break
+		end
 	end
 	local str = string.sub(self.buf,1,n)
 	self.buf = string.sub(self.buf,n+1)
