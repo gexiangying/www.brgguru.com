@@ -211,10 +211,17 @@ function input_score(tour_no,no,round)
 		func() 
 		t.db = t.db or {}
 		t.db.players = t.db.players or {}
+		local rounds = t.db.rounds or 0
 		for i,v in ipairs(pls) do	
 			local name = urs[v.no]
 			t.db.players[name] = t.db.players[name] or {} 
 			t.db.players[name][tonumber(round)] = tonumber(v.vp)
+			local bonus = [-50,-50,-50,-50,-50,1,3,6,10,15]
+			local count = 0
+			for k,v in pairs(t.db.players[name]) do
+				if k < rounds and v > 0 then count = count + 1 end
+			end
+			t.db.players[name][rounds + 1] = bonus[count] or 0
 		end
 		comma.save_io(db_dir .. tour_no .. ".db",t.db,"db")
 		return true
