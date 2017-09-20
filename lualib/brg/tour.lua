@@ -218,8 +218,8 @@ function input_score(tour_no,no,round)
 			t.db.players[name][tonumber(round)] = tonumber(v.vp)
 			local bonus = {-50,-50,-50,-50,-50,1,3,6,10,15}
 			local count = 0
-			for k,v in pairs(t.db.players[name]) do
-				if k < rounds and v > 0 then count = count + 1 end
+			for k,v1 in pairs(t.db.players[name]) do
+				if k <= rounds and v1 > 0 then count = count + 1 end
 			end
 			t.db.players[name][rounds + 1] = bonus[count] or 0
 		end
