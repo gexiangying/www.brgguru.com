@@ -13,11 +13,11 @@
 					<ul data-role="listview" data-insert="true">
 						<li data-role="fieldcontain">
 							<label for="no1">人员编号1</label>
-							<input type="text" name="no1" id="no1">
+							<input type="number" name="no1" id="no1">
 						</li>
 						<li data-role="fieldcontain">
 							<label for="no2">人员编号2</label>
-							<input type="text" name="no2" id="no2">
+							<input type="number" name="no2" id="no2">
 						</li>
 						<li data-role="fieldcontain">
 							<input type="submit" value="确认" data-theme="a" >
