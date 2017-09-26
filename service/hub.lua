@@ -265,7 +265,7 @@ function ghub.services.quit(content)
 		ip,port = hub_addr(content)
 		trace_out("client exit @" .. ip .. ":" ..port .. "\n")
 		Last[content] = nil
-		remote_content(content)
+		remove_content(content)
 		cts[content] = nil
 	end
 end
@@ -275,11 +275,13 @@ function ghub.services.recv(content,str)
 	if not need_content then
 		process_cmd(content,env,cgi)
 		Last[content] = nil
-		str = nil
-		local memCount = collectgarbage("count")
-		if memCount > 30000 then collectgarbage("collect") end
 	end
 	post_recv(content,luaext.guid())
+	local memCount = collectgarbage("count")
+	--trace_out("Memory uses: " .. memCount / 1000 .. "M@" .. (ghub.self_name() or "none")  .. "\n")
+	if memCount > 30000 then 
+		collectgarbage("collect") 
+	end
 end
 
 
