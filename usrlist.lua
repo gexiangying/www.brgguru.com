@@ -2,6 +2,14 @@ local lfs = require("lfs")
 
 local rs = {}
 local count = {}
+local name = {}
+
+local function load_name()
+	local t = {}
+	local func = loadfile("brg/db/dalian-user-list.db","bt",t)
+	if func then func() end
+	name = t.db
+end
 
 local function count_usr(k,v)
 	for k1,v1 in pairs(v) do
@@ -45,16 +53,22 @@ local function ls(path)
 end
 
 ls("brg/db")
+load_name()
 
 for k,v in pairs(rs) do
 	count_usr(k,v)
 end
 
+local f = io.open("usr.txt","w")
+
 for k,v in pairs(count) do
-	print("usr@" .. k .. " days=" .. v)
-	for k1,v1 in pairs(rs[k]) do
-		print("\t" .. k1)
-	end
+	f:write(name[k] .. "\t\t" .. v .. "\n")
 end
 
-
+for k,v in pairs(count) do
+	f:write("usr@" .. name[k] .. " days=" .. v .. "\n")
+	for k1,v1 in pairs(rs[k]) do
+		f:write("\t" .. k1 .. "\n")
+	end
+end
+f:close()
