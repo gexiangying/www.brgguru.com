@@ -59,16 +59,25 @@ for k,v in pairs(rs) do
 	count_usr(k,v)
 end
 
-local f = io.open("usr.txt","w")
-
+local f = io.open("brg/usr.html","w")
+f:write("<head>\n")
+f:write("<meta charset=utf-8>\n")
+f:write("<title>活动记录</title>\n")
+f:write("</head>\n")
+f:write("<html>\n")
+f:write("<body>\n")
 for k,v in pairs(count) do
-	f:write(name[k] .. "\t\t" .. v .. "\n")
+	f:write("<p><span>" .. name[k] .. "</span><span>" .. v .. "</span></p>\n")
 end
 
 for k,v in pairs(count) do
-	f:write("usr@" .. name[k] .. " days=" .. v .. "\n")
+	f:write("<p>usr@" .. name[k] .. " days=" .. v .. "</p>\n")
+	f:write("<ol>\n")
 	for k1,v1 in pairs(rs[k]) do
-		f:write("\t" .. k1 .. "\n")
+		f:write("<li>" .. k1 .. "</li>")
 	end
+	f:write("</ol>\n")
 end
+f:write("</body>\n")
+f:write("</html>\n")
 f:close()
