@@ -35,7 +35,7 @@ end
 local function ls(path)
 	for file in lfs.dir(path) do
 		if file ~="." and file ~= ".." then
-			local day,round,desk = string.match(file,"^(.*)-(%d+)-(%d+)%.db$")	
+			local day,round,desk = string.match(file,"^(dl.*)-(%d+)-(%d+)%.db$")	
 			if day and round and desk then
 				local f = path .. "/" .. file
 				farse_usr(f,day)
