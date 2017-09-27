@@ -66,17 +66,18 @@ f:write("<title>活动记录</title>\n")
 f:write("</head>\n")
 f:write("<html>\n")
 f:write("<body>\n")
+f:write("<table>")
 for k,v in pairs(count) do
-	f:write("<p><span>" .. name[k] .. "</span><span>" .. v .. "</span></p>\n")
+	f:write("<tr><td>" .. name[k] .. "</td><td>" .. v .. "</td></tr>\n")
 end
-
+f:write("</table>")
 for k,v in pairs(count) do
 	f:write("<p>usr@" .. name[k] .. " days=" .. v .. "</p>\n")
-	f:write("<ol>\n")
+	f:write("<ul>\n")
 	for k1,v1 in pairs(rs[k]) do
 		f:write("<li>" .. k1 .. "</li>")
 	end
-	f:write("</ol>\n")
+	f:write("</ul>\n")
 end
 f:write("</body>\n")
 f:write("</html>\n")
