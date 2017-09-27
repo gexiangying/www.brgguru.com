@@ -61,12 +61,14 @@ end
 
 local f = io.open("brg/usr.html","w")
 f:write("<head>\n")
+--f:write([[ <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" >]])
+f:write([[ <meta name="viewport" content="width=device-width,initial-scale=1">]])
 f:write("<meta charset=utf-8>\n")
 f:write("<title>活动记录</title>\n")
 f:write("</head>\n")
 f:write("<html>\n")
 f:write("<body>\n")
-f:write("<table>")
+f:write([[<table width="100%" border="2">]])
 for k,v in pairs(count) do
 	f:write("<tr><td>" .. name[k] .. "</td><td>" .. v .. "</td></tr>\n")
 end
