@@ -20,7 +20,7 @@ local sites={
 	"default"
 }
 local routes = {}
-routes["127.0.0.1"] = { ["path"] ="brg",["name"] ="index",["ext"]="lp"}
+routes["127.0.0.1"] = { ["path"] ="c:\\gexy\\three.js-master\\three.js-master\\examples",["name"] ="index",["ext"]="lp"}
 routes["localhost"] = { ["path"] ="apcad",["name"] ="index",["ext"]="lp"}
 routes["jquery.brgguru.com"] = { ["path"] ="jquery",["name"] ="index",["ext"]="lp"}
 routes["www.apcad.com"] = routes["localhost"] 
